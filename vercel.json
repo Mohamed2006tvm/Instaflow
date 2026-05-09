@@ -16,6 +16,7 @@
     { "source": "/auth/(.*)", "destination": "backend/server.js" },
     { "source": "/webhook/(.*)", "destination": "backend/server.js" },
     { "source": "/health", "destination": "backend/server.js" },
-    { "source": "/(.*)", "destination": "/frontend/$1" }
+    { "source": "/assets/(.*)", "destination": "/frontend/assets/$1" },
+    { "source": "/(.*)", "destination": "/frontend/index.html" }
   ]
 }
