@@ -1,0 +1,100 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-surface text-white font-sans;
+    margin: 0;
+  }
+
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-surface-border rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-accent-dim;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-surface-secondary border border-surface-border rounded-xl p-6 animate-fade-in;
+  }
+
+  .btn-primary {
+    @apply bg-white text-black font-semibold text-sm px-4 py-2 rounded-lg
+           hover:bg-gray-100 transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply bg-transparent border border-surface-border text-accent-muted text-sm px-4 py-2 rounded-lg
+           hover:bg-surface-hover hover:text-white transition-all duration-150;
+  }
+
+  .btn-danger {
+    @apply bg-transparent border border-red-800 text-red-400 text-sm px-4 py-2 rounded-lg
+           hover:bg-red-950 transition-all duration-150;
+  }
+
+  .input {
+    @apply bg-surface-hover border border-surface-border text-white placeholder-accent-dim
+           rounded-lg px-3 py-2 text-sm w-full outline-none transition-colors duration-150
+           focus:border-white/30 focus:ring-1 focus:ring-white/10;
+  }
+
+  .label {
+    @apply block text-xs font-medium text-accent-muted mb-1.5;
+  }
+
+  .badge-success {
+    @apply inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5
+           bg-green-950 text-green-400 border border-green-900 rounded-full;
+  }
+
+  .badge-error {
+    @apply inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5
+           bg-red-950 text-red-400 border border-red-900 rounded-full;
+  }
+
+  .badge-warning {
+    @apply inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5
+           bg-yellow-950 text-yellow-400 border border-yellow-900 rounded-full;
+  }
+
+  .badge-neutral {
+    @apply inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5
+           bg-surface border border-surface-border text-accent-muted rounded-full;
+  }
+
+  .table-row-hover {
+    @apply hover:bg-surface-hover transition-colors duration-100;
+  }
+
+  .sidebar-link {
+    @apply flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
+           text-accent-muted hover:text-white hover:bg-surface-hover transition-all duration-150;
+  }
+
+  .sidebar-link-active {
+    @apply bg-surface-hover text-white;
+  }
+}
