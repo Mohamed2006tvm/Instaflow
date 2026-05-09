@@ -14,8 +14,7 @@ const requiredVars = [
 
 requiredVars.forEach((key) => {
   if (!process.env[key]) {
-    console.error(`[Config] ❌ Missing required env var: ${key}`);
-    process.exit(1);
+    console.warn(`[Config] ⚠️ Missing recommended env var: ${key}`);
   }
 });
 
