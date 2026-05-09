@@ -1,7 +1,9 @@
 import axios from 'axios';
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || '';
+
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: `${API_BASE_URL}/api`,
   withCredentials: true,
   headers: { 'Content-Type': 'application/json' },
 });
@@ -10,7 +12,6 @@ api.interceptors.response.use(
   (res) => res,
   (err) => {
     const url = err.config?.url || '';
-    // Don't redirect if the 401 came from an auth check itself (avoids loops)
     if (err.response?.status === 401 && !url.includes('/auth/')) {
       window.location.href = '/login';
     }
@@ -18,11 +19,11 @@ api.interceptors.response.use(
   }
 );
 
-// Auth — direct to /auth (not under /api)
+// Auth
 export const authApi = {
-  login: (email, password) => axios.post('/auth/login', { email, password }, { withCredentials: true }),
-  logout: () => axios.post('/auth/logout', {}, { withCredentials: true }),
-  me: () => axios.get('/auth/me', { withCredentials: true }),
+  login: (email, password) => axios.post(`${API_BASE_URL}/auth/login`, { email, password }, { withCredentials: true }),
+  logout: () => axios.post(`${API_BASE_URL}/auth/logout`, {}, { withCredentials: true }),
+  me: () => axios.get(`${API_BASE_URL}/auth/me`, { withCredentials: true }),
 };
 
 // Account
