@@ -1,23 +1,25 @@
-const { Pool } = require('pg');
+const { Pool } = require('@neondatabase/serverless');
 const env = require('./env');
 const logger = require('./logger');
 
+// Connection pool - optimized for Serverless
 const pool = new Pool({
   connectionString: env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false // Required for Neon
-  }
 });
+
+let isInitialized = false;
 
 /**
  * Initialize database tables if they don't exist
+ * Optimized to run only once per function instance
  */
 async function initDatabase() {
+  if (isInitialized) return;
+  
   const client = await pool.connect();
   try {
-    logger.info('Database', 'Initializing tables...');
+    logger.info('Database', 'Ensuring schema is ready...');
 
-    // Automations table
     await client.query(`
       CREATE TABLE IF NOT EXISTS automations (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -29,11 +31,8 @@ async function initDatabase() {
         is_enabled BOOLEAN DEFAULT true,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
+      );
 
-    // Logs table
-    await client.query(`
       CREATE TABLE IF NOT EXISTS automation_logs (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         automation_id UUID REFERENCES automations(id) ON DELETE SET NULL,
@@ -47,11 +46,8 @@ async function initDatabase() {
         status TEXT DEFAULT 'pending',
         error_message TEXT,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
+      );
 
-    // Account info table (to persist account details across restarts)
-    await client.query(`
       CREATE TABLE IF NOT EXISTS account_info (
         id TEXT PRIMARY KEY,
         username TEXT,
@@ -61,13 +57,14 @@ async function initDatabase() {
         follower_count INTEGER,
         token_expires_at TIMESTAMP WITH TIME ZONE,
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-      )
+      );
     `);
 
-    logger.info('Database', 'Tables initialized successfully');
+    isInitialized = true;
+    logger.info('Database', 'Schema check complete');
   } catch (err) {
-    logger.error('Database', 'Failed to initialize tables', { err: err.message });
-    throw err;
+    logger.error('Database', 'Schema initialization failed', { err: err.message });
+    // Don't throw here, let the first query fail with a better error
   } finally {
     client.release();
   }
@@ -76,5 +73,8 @@ async function initDatabase() {
 module.exports = {
   pool,
   initDatabase,
-  query: (text, params) => pool.query(text, params),
+  query: async (text, params) => {
+    if (!isInitialized) await initDatabase();
+    return pool.query(text, params);
+  },
 };

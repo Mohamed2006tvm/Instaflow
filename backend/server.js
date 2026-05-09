@@ -9,9 +9,6 @@ const { initDatabase } = require('./src/config/database');
 
 async function startServer() {
   try {
-    // Initialize DB
-    await initDatabase();
-
     // Only listen if not running as a Vercel function
     if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
       const server = app.listen(env.PORT, () => {

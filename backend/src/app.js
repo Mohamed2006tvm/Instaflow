@@ -22,7 +22,14 @@ const { authenticate } = require('./middleware/auth');
     // ... existing trust proxy and CORS setup ...
     app.set('trust proxy', 1);
     app.use(cors({
-      origin: ['http://localhost:5173', 'http://localhost:3000', 'https://instaflow-beta.vercel.app'],
+      origin: (origin, callback) => {
+        const allowedOrigins = ['http://localhost:5173', 'http://localhost:3000', 'https://instaflow-beta.vercel.app'];
+        if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
+          callback(null, true);
+        } else {
+          callback(new Error('Not allowed by CORS'));
+        }
+      },
       credentials: true,
     }));
     app.use(cookieParser());
