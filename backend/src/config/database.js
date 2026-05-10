@@ -3,9 +3,12 @@ const env = require('./env');
 const logger = require('./logger');
 
 // Connection pool - optimized for Serverless
-const pool = new Pool({
-  connectionString: env.DATABASE_URL || '',
-});
+let pool = null;
+if (env.DATABASE_URL) {
+  pool = new Pool({ connectionString: env.DATABASE_URL });
+} else {
+  logger.warn('Database', 'DATABASE_URL is not configured. Database operations will fail until it is set.');
+}
 
 let isInitialized = false;
 
@@ -15,6 +18,9 @@ let isInitialized = false;
  */
 async function initDatabase() {
   if (isInitialized) return;
+  if (!pool) {
+    throw new Error('DATABASE_URL is missing. Cannot initialize database.');
+  }
   
   const client = await pool.connect();
   try {
@@ -74,6 +80,9 @@ module.exports = {
   pool,
   initDatabase,
   query: async (text, params) => {
+    if (!pool) {
+      throw new Error('DATABASE_URL is missing. Database query cannot be executed.');
+    }
     if (!isInitialized) await initDatabase();
     return pool.query(text, params);
   },

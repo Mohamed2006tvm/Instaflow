@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 let app;
+let startupError = null;
 try {
   console.log('Attempting to load backend app...');
   const { createApp } = require('../src/app');
@@ -9,11 +10,11 @@ try {
   console.log('Backend app loaded successfully.');
 } catch (err) {
   console.error('CRITICAL: Backend startup failed:', err);
+  startupError = err;
   const express = require('express');
   app = express();
   
   app.all('*', (req, res) => {
-    // Check for common issues
     const packageJsonPath = path.join(__dirname, '../package.json');
     const hasPackageJson = fs.existsSync(packageJsonPath);
     const nodeModulesPath = path.join(__dirname, '../node_modules');
@@ -40,7 +41,8 @@ try {
 // Add a direct test route for Vercel
 app.get('/api/test-backend', (req, res) => {
   res.json({ 
-    status: 'Backend is alive!', 
+    status: startupError ? 'Backend startup error' : 'Backend is alive!',
+    error: startupError ? startupError.message : undefined,
     env_check: {
       has_db_url: !!process.env.DATABASE_URL,
       has_jwt_secret: !!process.env.JWT_SECRET,
@@ -50,4 +52,4 @@ app.get('/api/test-backend', (req, res) => {
   });
 });
 
-module.exports = app;
+module.exports = (req, res, next) => app(req, res, next);
