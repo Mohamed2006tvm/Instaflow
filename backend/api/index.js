@@ -1,18 +1,38 @@
-const { createApp } = require('../src/app');
+const fs = require('fs');
+const path = require('path');
 
 let app;
 try {
+  console.log('Attempting to load backend app...');
+  const { createApp } = require('../src/app');
   app = createApp();
+  console.log('Backend app loaded successfully.');
 } catch (err) {
-  console.error('Failed to create Express app:', err);
-  // Create a minimal app to report the error
+  console.error('CRITICAL: Backend startup failed:', err);
   const express = require('express');
   app = express();
-  app.get('*', (req, res) => {
-    res.status(500).json({ 
-      error: 'Backend startup failed', 
+  
+  app.all('*', (req, res) => {
+    // Check for common issues
+    const packageJsonPath = path.join(__dirname, '../package.json');
+    const hasPackageJson = fs.existsSync(packageJsonPath);
+    const nodeModulesPath = path.join(__dirname, '../node_modules');
+    const hasNodeModules = fs.existsSync(nodeModulesPath);
+    
+    res.status(500).json({
+      error: 'CRITICAL_STARTUP_FAILURE',
       message: err.message,
-      stack: err.stack 
+      stack: err.stack,
+      debug: {
+        hasPackageJson,
+        hasNodeModules,
+        cwd: process.cwd(),
+        dirname: __dirname,
+        env: {
+          NODE_ENV: process.env.NODE_ENV,
+          VERCEL: process.env.VERCEL
+        }
+      }
     });
   });
 }
