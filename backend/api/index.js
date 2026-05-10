@@ -2,7 +2,7 @@ const { createApp } = require('../src/app');
 const app = createApp();
 
 // Add a direct test route for Vercel
-app.get('/test-backend', (req, res) => {
+app.get('/api/test-backend', (req, res) => {
   res.json({ 
     status: 'Backend is alive!', 
     env_check: {

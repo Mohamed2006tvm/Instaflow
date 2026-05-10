@@ -1,10 +1,18 @@
 const fs = require('fs');
 const path = require('path');
 
-// Ensure logs directory exists
+// Ensure logs directory exists - skip on Vercel
+const isVercel = process.env.VERCEL === '1';
 const logsDir = path.join(process.cwd(), 'logs');
-if (!fs.existsSync(logsDir)) {
-  fs.mkdirSync(logsDir, { recursive: true });
+
+if (!isVercel) {
+  if (!fs.existsSync(logsDir)) {
+    try {
+      fs.mkdirSync(logsDir, { recursive: true });
+    } catch (err) {
+      console.error('Failed to create logs directory:', err.message);
+    }
+  }
 }
 
 const logFile = path.join(logsDir, 'app.log');
@@ -25,6 +33,8 @@ function formatLine(level, context, message, data) {
 }
 
 function writeToFile(line) {
+  if (isVercel) return; // Skip file logging on Vercel
+  
   fs.appendFile(logFile, line + '\n', (err) => {
     if (err) console.error('Logger write error:', err.message);
   });
