@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Ensure logs directory exists - skip on Vercel
-const isVercel = process.env.VERCEL === '1';
+const isVercel = !!process.env.VERCEL;
 const logsDir = path.join(process.cwd(), 'logs');
 
 if (!isVercel) {
