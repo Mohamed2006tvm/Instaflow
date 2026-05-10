@@ -12,6 +12,7 @@ function createApp() {
   // Security headers
   app.use(helmet());
 
+
   // Trust proxy for Vercel
   app.set('trust proxy', 1);
 
